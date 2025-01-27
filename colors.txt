@@ -1,0 +1,5 @@
+darkblue = #21295c 
+ligthblue =  #1b3b6f
+red =   #db2b39
+green = #018e42
+yellow = #f3a712
