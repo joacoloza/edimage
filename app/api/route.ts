@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // Get the headers
+  /*// Get the headers
   const headerPayload = await headers();
   const svix_id = headerPayload.get("svix-id");
   const svix_timestamp = headerPayload.get("svix-timestamp");
@@ -32,10 +32,28 @@ export async function POST(req: Request) {
 
   // Get the body
   const payload = await req.json();
-  const body = JSON.stringify(payload);
+  const body = JSON.stringify(payload);*/
 
   // Create a new Svix instance with your secret.
   const wh = new Webhook(WEBHOOK_SECRET);
+
+  //getting headers
+  const headerPayload = await headers();
+  const svix_id = headerPayload.get("svix-id");
+  const svix_timestamp = headerPayload.get("svix-timestamp");
+  const svix_signature = headerPayload.get("svix-signature");
+
+  //if there are no headers, error out
+  if (!svix_id || !svix_timestamp || !svix_signature) {
+    return new Response("Error occured -- no svix headers", {
+      status: 400,
+    });
+  }
+
+  //get body
+
+  const payload = await req.json();
+  const body = JSON.stringify(payload);
 
   let evt: WebhookEvent;
 
@@ -57,10 +75,14 @@ export async function POST(req: Request) {
   const { id } = evt.data;
   const eventType = evt.type;
 
+  console.log('recive with id',id);
+  console.log('recive with type',eventType);
+  console.log('event type', eventType)
+
   // CREATE
   if (eventType === "user.created") {
     const { id, email_addresses, image_url, first_name, last_name, username } = evt.data;
-
+    console.log(id, email_addresses, image_url, first_name, last_name, username);
     const user = {
       clerkId: id,
       email: email_addresses[0].email_address,
@@ -113,5 +135,5 @@ export async function POST(req: Request) {
   console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
   console.log("Webhook body:", body);
 
-  return new Response("", { status: 200 });
+  return new Response("webhook recived", { status: 200 });
 }
